@@ -60,3 +60,43 @@ def test_login_errors(page:Page,username:str,password:str,login_errors:str):
     page.get_by_placeholder("Password").fill(password)
     page.get_by_role("button", name="Login").click()
     expect(page.get_by_text(login_errors)).to_be_visible()
+
+
+@pytest.mark.parametrize("firstname,lastname,zipcode,error", [
+    ("","Kumar","263139","Error: First Name is required"),
+    ("Vivek","","263139","Error: Last Name is required"),
+    ("Vivek","Kumar","","Error: Postal Code is required")
+])
+def test_checkout_user(logged_in_page:Page,firstname:str,lastname:str,zipcode:str,error:str):
+    logged_in_page.goto("https://www.saucedemo.com/checkout-step-one.html")
+    logged_in_page.get_by_placeholder("First Name").fill(firstname)
+    logged_in_page.get_by_placeholder("Last Name").fill(lastname)
+    logged_in_page.get_by_placeholder("Zip/Postal Code").fill(zipcode)
+    logged_in_page.get_by_role("button", name="Continue").click()
+    expect(logged_in_page.get_by_text(error)).to_be_visible()
+
+
+@pytest.mark.parametrize("products", [
+    ("Sauce Labs Backpack"),
+    ("Sauce Labs Bike Light"),
+    ("Sauce Labs Bolt T-Shirt")
+])
+def test_check_cart(logged_in_page:Page,products:str):
+    expect(logged_in_page).to_have_url("https://www.saucedemo.com/inventory.html")
+    logged_in_page.locator(".inventory_item").filter(has_text=products).get_by_role("button").click()
+    expect(logged_in_page.locator(".shopping_cart_badge")).to_have_text("1")
+    logged_in_page.locator("[data-test='shopping-cart-link']").click()
+    logged_in_page.get_by_role("button", name="Remove").click()
+    expect(logged_in_page.locator(".shopping_cart_badge")).to_be_hidden()
+
+
+@pytest.mark.parametrize("sorttype,firstproduct", [
+    ("az","Sauce Labs Backpack"),
+    ("za","Test.allTheThings() T-Shirt (Red)"),
+    ("lohi","Sauce Labs Onesie"),
+    ("hilo","Sauce Labs Fleece Jacket"),
+])
+def test_check_first_product(logged_in_page:Page,sorttype:str,firstproduct:str):
+    logged_in_page.locator("[data-test='product-sort-container']").select_option(sorttype)
+    expect(logged_in_page.locator("[data-test='product-sort-container']")).to_have_value(sorttype)
+    expect(logged_in_page.locator("[data-test='inventory-item-name']").first).to_have_text(firstproduct)
