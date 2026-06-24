@@ -22,7 +22,7 @@
 - [x] `conftest.py` — what it is and why fixtures live there
 - [x] Writing a shared fixture — `logged_in_page`
 - [x] Fixture injection — how pytest matches parameter names to fixtures
-- [ ] `@pytest.mark.parametrize` — data-driven tests
+- [x] `@pytest.mark.parametrize` — data-driven tests
 
 ### Project structure introduced
 ```
